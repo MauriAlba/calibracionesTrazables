@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Nuevo instrumento</h2>
+
+<form method="POST">
+
+    <label>Nombre</label>
+    <input type="text" name="nombre" required>
+
+    <label>Tipo</label>
+    <input type="text" name="tipo">
+
+    <label>Ubicación</label>
+    <input type="text" name="ubicacion">
+
+    <label>Descripción</label>
+    <textarea name="descripcion"></textarea>
+
+    <label>Tolerancia máxima</label>
+    <input
+        type="number"
+        step="any"
+        name="tolerancia"
+    >
+
+    <button type="submit" class="btn">
+        Guardar
+    </button>
+
+</form>
+
+<br>
+
+<a href="/instrumentos">
+    Volver
+</a>
+
+{% endblock %}

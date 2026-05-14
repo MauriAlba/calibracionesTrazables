@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Mediciones</h2>
+
+<h3>
+    Instrumento: {{ instrumento.nombre }}
+</h3>
+
+<p>
+    Calibración ID: {{ calibracion.id }}
+</p>
+
+<a href="/mediciones/nueva/{{ calibracion.id }}"
+   class="btn">
+    Nueva medición
+</a>
+<a href="/pdf/{{ calibracion.id }}"
+   class="btn">
+    Exportar PDF
+</a>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Valor patrón</th>
+            <th>Valor medido</th>
+            <th>Error</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for medicion in mediciones %}
+
+        <tr>
+            <td>{{ medicion.id }}</td>
+            <td>{{ medicion.valor_patron }}</td>
+            <td>{{ medicion.valor_medido }}</td>
+            <td>{{ medicion.error }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<a href="/calibraciones/{{ instrumento.id }}">
+    Volver
+</a>
+
+{% endblock %}

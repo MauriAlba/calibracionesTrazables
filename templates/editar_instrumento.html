@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Editar instrumento</h2>
+
+<form method="POST">
+
+    <label>Nombre</label>
+    <input
+        type="text"
+        name="nombre"
+        value="{{ instrumento.nombre }}"
+        required
+    >
+
+    <label>Tipo</label>
+    <input
+        type="text"
+        name="tipo"
+        value="{{ instrumento.tipo }}"
+    >
+
+    <label>Ubicación</label>
+    <input
+        type="text"
+        name="ubicacion"
+        value="{{ instrumento.ubicacion }}"
+    >
+
+    <label>Descripción</label>
+    <textarea name="descripcion">{{ instrumento.descripcion }}</textarea>
+
+    <label>Tolerancia máxima</label>
+    <input
+        type="number"
+        step="any"
+        name="tolerancia"
+        value="{{ instrumento.tolerancia }}"
+    >
+
+    <button type="submit" class="btn">
+        Actualizar
+    </button>
+
+</form>
+
+<br>
+
+<a href="/instrumentos">
+    Volver
+</a>
+
+{% endblock %}

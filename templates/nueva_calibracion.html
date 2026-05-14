@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Nueva calibración</h2>
+
+<h3>
+    Instrumento: {{ instrumento.nombre }}
+</h3>
+
+<form method="POST">
+
+    <label>Fecha</label>
+    <input type="date" name="fecha" required>
+
+    <label>Responsable</label>
+    <input type="text" name="responsable" required>
+
+    <label>Observaciones</label>
+    <textarea name="observaciones"></textarea>
+
+    <button type="submit" class="btn">
+        Guardar calibración
+    </button>
+
+</form>
+
+<br>
+
+<a href="/calibraciones/{{ instrumento.id }}">
+    Volver
+</a>
+
+{% endblock %}

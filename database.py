@@ -19,6 +19,7 @@ def crear_base():
         tipo TEXT,
         ubicacion TEXT,
         descripcion TEXT
+        tolerancia REAL
     )
     """)
 

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Instrumentos</h2>
+
+<a href="/instrumentos/nuevo" class="btn">
+    Nuevo instrumento
+</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Ubicación</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for instrumento in instrumentos %}
+        <tr>
+            <td>{{ instrumento.id }}</td>
+            <td>{{ instrumento.nombre }}</td>
+            <td>{{ instrumento.tipo }}</td>            
+            <td>{{ instrumento.ubicacion }}</td>
+            <td>{{ instrumento.descripcion }}</td>
+
+            <td>
+                <a href="/calibraciones/{{ instrumento.id }}" class="btn">
+                    Calibraciones
+                </a>
+                <a href="/instrumentos/editar/{{ instrumento.id }}"
+                   class="btn">
+                    Editar
+                </a>
+
+                <a href="/instrumentos/eliminar/{{ instrumento.id }}"
+                   class="btn-danger">
+                    Eliminar
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+
+
+</table>
+
+{% endblock %}

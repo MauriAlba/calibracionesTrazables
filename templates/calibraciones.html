@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>
+    Calibraciones
+</h2>
+
+<h3>
+    Instrumento: {{ instrumento.nombre }}
+</h3>
+
+<a href="/calibraciones/nueva/{{ instrumento.id }}"
+   class="btn">
+    Nueva calibración
+</a>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Responsable</th>
+            <th>Observaciones</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for calibracion in calibraciones %}
+
+        <tr>
+            <td>{{ calibracion.id }}</td>
+            <td>{{ calibracion.fecha }}</td>
+            <td>{{ calibracion.responsable }}</td>
+            <td>{{ calibracion.observaciones }}</td>
+            <td>
+                <a href="/mediciones/{{ calibracion.id }}"
+                class="btn">
+                    Mediciones
+                </a>
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<a href="/instrumentos">
+    Volver
+</a>
+
+{% endblock %}

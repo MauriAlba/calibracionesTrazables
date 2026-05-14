@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Nueva medición</h2>
+
+<h3>
+    Instrumento: {{ instrumento.nombre }}
+</h3>
+
+<p>
+    Calibración ID: {{ calibracion.id }}
+</p>
+
+<form method="POST">
+
+    <label>Valor patrón</label>
+    <input
+        type="number"
+        step="any"
+        name="valor_patron"
+        required
+    >
+
+    <label>Valor medido</label>
+    <input
+        type="number"
+        step="any"
+        name="valor_medido"
+        required
+    >
+
+    <button type="submit" class="btn">
+        Guardar medición
+    </button>
+
+</form>
+
+<br>
+
+<a href="/mediciones/{{ calibracion.id }}">
+    Volver
+</a>
+
+{% endblock %}
