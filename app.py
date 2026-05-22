@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect
 from flask import send_file
 from database import crear_base, get_connection
+from datetime import datetime, timedelta
+
+print("ESTE APP.PY SE ESTA EJECUTANDO")
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"
@@ -33,7 +36,58 @@ def instrumentos():
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM instrumentos")
-    instrumentos = cursor.fetchall()
+    instrumentos_db = cursor.fetchall()
+
+    
+
+    instrumentos = []
+
+    for instrumento in instrumentos_db:
+
+        cursor.execute("""
+            SELECT * FROM calibraciones
+            WHERE instrumento_id = ?
+            ORDER BY fecha DESC
+            LIMIT 1
+        """, (instrumento["id"],))
+
+        ultima = cursor.fetchone()
+
+        estado_vencimiento = "SIN CALIBRACIONES"
+
+        if ultima and instrumento["frecuencia"]:
+
+            fecha_cal = datetime.strptime(
+                ultima["fecha"],
+                "%Y-%m-%d"
+            )
+
+            vencimiento = fecha_cal + timedelta(
+                days=instrumento["frecuencia"]
+            )
+
+            hoy = datetime.now()
+
+            dias_restantes = (
+                vencimiento - hoy
+            ).days
+
+            if dias_restantes < 0:
+
+                estado_vencimiento = "VENCIDO"
+
+            elif dias_restantes <= 30:
+
+                estado_vencimiento = "PRÓXIMO A VENCER"
+
+            else:
+
+                estado_vencimiento = "VIGENTE"
+
+        instrumentos.append({
+            "instrumento": instrumento,
+            "estado": estado_vencimiento
+        })
 
     conn.close()
 
@@ -54,6 +108,7 @@ def nuevo_instrumento():
         ubicacion = request.form["ubicacion"]
         descripcion = request.form["descripcion"]
         tolerancia = request.form["tolerancia"]
+        frecuencia = request.form["frecuencia"]
 
         conn = get_connection()
         cursor = conn.cursor()
@@ -65,15 +120,17 @@ def nuevo_instrumento():
                 tipo,
                 ubicacion,
                 descripcion,
-                tolerancia
+                tolerancia,
+                frecuencia
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         """, (
             nombre,
             tipo,
             ubicacion,
             descripcion,
-            tolerancia
+            tolerancia,
+            frecuencia
         ))
 
         conn.commit()
@@ -97,20 +154,24 @@ def editar_instrumento(id):
         ubicacion = request.form["ubicacion"]
         descripcion = request.form["descripcion"]
         tolerancia = request.form["tolerancia"]
-
+        frecuencia = request.form["frecuencia"]
 
         cursor.execute("""
             UPDATE instrumentos
             SET nombre = ?,
                 tipo = ?,
                 ubicacion = ?,
-                descripcion = ?
+                descripcion = ?,
+                tolerancia = ?,
+                frecuencia = ?
             WHERE id = ?
         """, (
             nombre,
             tipo,
             ubicacion,
             descripcion,
+            tolerancia,
+            frecuencia,
             id
         ))
 
@@ -207,20 +268,44 @@ def nueva_calibracion(instrumento_id):
         responsable = request.form["responsable"]
         observaciones = request.form["observaciones"]
 
+         # =========================
+        # GENERAR CERTIFICADO
+        # =========================
+
+        # Obtener año
+        anio = fecha.split("-")[0]
+
+        # Contar calibraciones
+        cursor.execute("""
+            SELECT COUNT(*) as total
+            FROM calibraciones
+        """)
+
+        total = cursor.fetchone()["total"] + 1
+
+        # Número de certificado
+        certificado = f"CAL-{anio}-{total:04d}"
+
+        # =========================
+        # INSERT
+        # =========================
+
         cursor.execute("""
             INSERT INTO calibraciones
             (
                 instrumento_id,
                 fecha,
                 responsable,
-                observaciones
+                observaciones,
+                certificado
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         """, (
             instrumento_id,
             fecha,
             responsable,
-            observaciones
+            observaciones,
+            certificado
         ))
 
         conn.commit()
@@ -269,11 +354,27 @@ def mediciones(calibracion_id):
 
     conn.close()
 
+
+    # Determinar estado de la calibración
+    estado = "APROBADO"
+
+    tolerancia = instrumento["tolerancia"]
+
+    for medicion in mediciones:
+
+        if abs(medicion["error"]) > tolerancia:
+
+            estado = "FUERA DE TOLERANCIA"
+            break
+
+
+
     return render_template(
         "mediciones.html",
         calibracion=calibracion,
         instrumento=instrumento,
-        mediciones=mediciones
+        mediciones=mediciones,
+        estado=estado
     )
 
 # Crear nueva medición
@@ -379,6 +480,18 @@ def exportar_pdf(calibracion_id):
 
     mediciones = cursor.fetchall()
 
+    # Estado calibración
+    estado = "APROBADO"
+
+    tolerancia = instrumento["tolerancia"]
+
+    for medicion in mediciones:
+
+        if abs(medicion["error"]) > tolerancia:
+
+            estado = "FUERA DE TOLERANCIA"
+            break
+
     conn.close()
 
     # Nombre PDF
@@ -402,13 +515,28 @@ def exportar_pdf(calibracion_id):
 
     # Datos principales
     datos = f"""
+    <b>Certificado:</b> {calibracion['certificado']}<br/>
     <b>Instrumento:</b> {instrumento['nombre']}<br/>
     <b>Fecha:</b> {calibracion['fecha']}<br/>
     <b>Responsable:</b> {calibracion['responsable']}<br/>
+    <b>Tolerancia:</b> ±{instrumento['tolerancia']}<br/>
     """
 
     elementos.append(
         Paragraph(datos, estilos["BodyText"])
+    )
+
+    elementos.append(Spacer(1, 20))
+
+    estado_texto = f"""
+    <b>Estado final:</b> {estado}
+    """
+
+    elementos.append(
+        Paragraph(
+            estado_texto,
+            estilos["Heading2"]
+        )
     )
 
     elementos.append(Spacer(1, 20))
@@ -449,7 +577,9 @@ def exportar_pdf(calibracion_id):
         as_attachment=True
     )
 
-
+@app.route("/test")
+def test():
+    return "FUNCIONA"
 
 
 if __name__ == "__main__":

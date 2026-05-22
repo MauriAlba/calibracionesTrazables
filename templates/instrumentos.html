@@ -16,19 +16,51 @@
             <th>Tipo</th>
             <th>Ubicación</th>
             <th>Descripción</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
 
     <tbody>
 
-        {% for instrumento in instrumentos %}
+        {% for item in instrumentos %}
+
+        {% set instrumento = item["instrumento"] %}
+        {% set estado = item["estado"] %}
+
         <tr>
             <td>{{ instrumento.id }}</td>
             <td>{{ instrumento.nombre }}</td>
             <td>{{ instrumento.tipo }}</td>            
             <td>{{ instrumento.ubicacion }}</td>
             <td>{{ instrumento.descripcion }}</td>
+            <td>
+
+                {% if estado == "VIGENTE" %}
+
+                    <span style="color: green;">
+                        ✔ {{ estado }}
+                    </span>
+
+                {% elif estado == "PRÓXIMO A VENCER" %}
+
+                    <span style="color: orange;">
+                        ⚠ {{ estado }}
+                    </span>
+
+                {% elif estado == "VENCIDO" %}
+
+                    <span style="color: red;">
+                        ✖ {{ estado }}
+                    </span>
+
+                {% else %}
+
+                    {{ estado }}
+
+                {% endif %}
+
+                </td>
 
             <td>
                 <a href="/calibraciones/{{ instrumento.id }}" class="btn">

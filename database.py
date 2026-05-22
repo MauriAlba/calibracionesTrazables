@@ -18,8 +18,9 @@ def crear_base():
         nombre TEXT NOT NULL,
         tipo TEXT,
         ubicacion TEXT,
-        descripcion TEXT
-        tolerancia REAL
+        descripcion TEXT,
+        tolerancia REAL,
+        frecuencia INTEGER
     )
     """)
 
@@ -31,6 +32,7 @@ def crear_base():
         fecha TEXT,
         responsable TEXT,
         observaciones TEXT,
+        certificado TEXT,
         FOREIGN KEY (instrumento_id) REFERENCES instrumentos(id)
     )
     """)

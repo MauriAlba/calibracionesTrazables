@@ -5,6 +5,20 @@
 <h2>Mediciones</h2>
 
 <h3>
+    Estado:
+
+    {% if estado == "APROBADO" %}
+        <span style="color: green;">
+            ✔ {{ estado }}
+        </span>
+    {% else %}
+        <span style="color: red;">
+            ✖ {{ estado }}
+        </span>
+    {% endif %}
+</h3>
+
+<h3>
     Instrumento: {{ instrumento.nombre }}
 </h3>
 
